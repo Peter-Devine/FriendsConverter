@@ -22,6 +22,10 @@ database_types = ["train", "dev", "test"]
 # We make a list of speaker names to anonymise them.
 names = []
 
+# Make the output directory if it does not currently exist
+if not os.path.exists(OUTPUT_PATH):
+    os.mkdir(OUTPUT_PATH)
+
 for database_type in database_types:
     # Open file
     with io.open(INPUT_PATH + "friends_"+ database_type +".json", 'r', encoding="utf-8") as f:
