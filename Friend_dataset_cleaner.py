@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import json
 import argparse
 import sys
 import os
 import pandas as pd
-from io import open
+import io
 
 # Takes input and output directories as arguments
 parser=argparse.ArgumentParser()
@@ -33,13 +35,10 @@ for database_type in database_types:
 
     # Change the encoding of the lines, from cp1252 to utf-8
     def line_encoding_fixer(dialogue_turn):
-        dialogue_turn["utterance"] = dialogue_turn["utterance"].encode("utf-8", "replace").decode('cp1252').replace("Â","")
+        dialogue_turn["utterance"] = dialogue_turn["utterance"].encode("utf-8", "replace").decode('cp1252').replace(ur"Â","")
 
     def line_encoding_fixer_apply(input_list):
         list(map(line_encoding_fixer, input_list))
-
-    # View sample line beforehand
-    print(datastore[37][3]["utterance"])
 
     # Apply the encoding fixer to all bits of dialogue
     list(map(line_encoding_fixer_apply, datastore))
@@ -55,8 +54,6 @@ for database_type in database_types:
         list(map(line_attributor, input_list))
 
     list(map(line_attributor_apply, datastore))
-
-    print(datastore[37][3]["utterance"])
 
     dialogue_df = pd.DataFrame()
 
@@ -87,3 +84,4 @@ for database_type in database_types:
     dialogue_dataframe = pd.concat(list_of_dialogue_dataframes)
 
     dialogue_dataframe.to_csv(OUTPUT_PATH+"/"+database_type+".tsv", sep='\t', encoding="utf-8")
+
