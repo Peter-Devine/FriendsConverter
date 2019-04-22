@@ -13,11 +13,13 @@ parser.add_argument('--input', default=".", help='The file path of the unzipped 
 parser.add_argument('--output', default="./data", help='The file path of the output dataset')
 parser.add_argument('--separator', default=r"[TRN]", help='The separator token between context turns')
 parser.add_argument('--turns', default="1", help='The number of previous turns to include in the context')
+parser.add_argument('--speaker_id', default="False", help='Should each line be preceded by the anonymised speaker id')
 args = parser.parse_args()
 INPUT_PATH = args.input
 OUTPUT_PATH = args.output
 SEPARATOR = args.separator
 CONTEXT_LEVEL = int(args.turns)
+SPEAKER_ID = args.speaker_id.upper() == "TRUE"
 
 database_types = ["train", "dev", "test"]
 
@@ -48,7 +50,15 @@ for database_type in database_types:
         if not dialogue_turn["speaker"] in names:
             names.append(dialogue_turn["speaker"])
 
-        dialogue_turn["utterance"] = "SPKR" + str(names.index(dialogue_turn["speaker"])) + ": " +dialogue_turn["utterance"]
+        if any(word in dialogue_turn["utterance"] for word in names):
+            names_in_utterance = set(dialogue_turn["utterance"].split()) & set(names)
+
+            for uttered_name in list(names_in_utterance):
+                speaker_id = "SPKR" + str(names.index(uttered_name))
+                dialogue_turn["utterance"] = dialogue_turn["utterance"].replace(uttered_name, speaker_id)
+       
+        if SPEAKER_ID:
+            dialogue_turn["utterance"] = "SPKR" + str(names.index(dialogue_turn["speaker"])) + ": " +dialogue_turn["utterance"]
 
     def line_attributor_apply(input_list):
         list(map(line_attributor, input_list))
@@ -84,4 +94,3 @@ for database_type in database_types:
     dialogue_dataframe = pd.concat(list_of_dialogue_dataframes)
 
     dialogue_dataframe.to_csv(OUTPUT_PATH+"/"+database_type+".tsv", sep='\t', encoding="utf-8")
-
