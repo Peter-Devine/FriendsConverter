@@ -44,7 +44,7 @@ for database_type in database_types:
 
     # Change the encoding of the lines, from cp1252 to utf-8
     def line_encoding_fixer(dialogue_turn):
-        dialogue_turn["utterance"] = dialogue_turn["utterance"].encode("utf-8", "replace").decode('cp1252').replace(ur"Â","")
+        dialogue_turn["utterance"] = dialogue_turn["utterance"].encode("utf-8", "replace").decode('ascii', "ignore")
 
     def line_encoding_fixer_apply(input_list):
         list(map(line_encoding_fixer, input_list))
