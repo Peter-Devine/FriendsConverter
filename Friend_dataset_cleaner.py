@@ -14,11 +14,13 @@ parser.add_argument('--output', default="./data", help='The file path of the out
 parser.add_argument('--separator', default=r"[TRN]", help='The separator token between context turns')
 parser.add_argument('--turns', default="1", help='The number of previous turns to include in the context')
 parser.add_argument('--speaker_id', default="False", help='Should each line be preceded by the anonymised speaker id')
+parser.add_argument('--is_friends', default="True", help='Is friends dataset (Default True, EmotionPush otherwise)')
 args = parser.parse_args()
 INPUT_PATH = args.input
 OUTPUT_PATH = args.output
 SEPARATOR = args.separator
 CONTEXT_LEVEL = int(args.turns)
+IS_FRIENDS = args.is_friends.upper() == "TRUE"
 SPEAKER_ID = args.speaker_id.upper() == "TRUE"
 
 database_types = ["train", "dev", "test"]
@@ -30,9 +32,14 @@ names = []
 if not os.path.exists(OUTPUT_PATH):
     os.mkdir(OUTPUT_PATH)
 
+if IS_FRIENDS:
+    file_prefix = "friends_"
+else:
+    file_prefix = "emotionpush_"
+
 for database_type in database_types:
     # Open file
-    with io.open(INPUT_PATH + "friends_"+ database_type +".json", 'r', encoding="utf-8") as f:
+    with io.open(INPUT_PATH + file_prefix + database_type +".json", 'r', encoding="utf-8") as f:
         datastore = json.load(f)
 
     # Change the encoding of the lines, from cp1252 to utf-8
